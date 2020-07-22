@@ -1,14 +1,41 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import MainNavigator from './src/Navigators/MainNavigator';
+import { combineReducers, createStore } from 'redux';
+import { Provider } from 'react-redux';
+import MealsReducer from './src/store/reducers/MealReducer';
+import CategoriesReducer from './src/store/reducers/CategoryReducer';
+import * as Font from 'expo-font';
+import { AppLoading } from 'expo';
+
+const loadFont = () => {
+  return Font.loadAsync({
+    'qs-m': require('./assets/fonts/Quicksand-Medium.ttf'),
+    'qs-sb': require('./assets/fonts/Quicksand-SemiBold.ttf')
+  });
+}
+
+const mainReducer = combineReducers({
+  meals: MealsReducer,
+  categories: CategoriesReducer
+});
+
+const store = createStore(mainReducer);
 
 export default function App() {
+
+  const [fontLoaded, setFontLoaded] = useState(false);
+
+  if(!fontLoaded) {
+    return <AppLoading startAsync={loadFont} onFinish={() => setFontLoaded(true)} />;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <Provider store={store}>
+      <MainNavigator />
+    </Provider>
+  )
 }
 
 const styles = StyleSheet.create({
